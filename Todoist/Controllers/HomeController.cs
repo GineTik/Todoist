@@ -6,7 +6,7 @@ namespace Todoist.Controllers
     {
         public IActionResult Index()
         {
-            return Content("text");
+            return View();
         }
     }
 }

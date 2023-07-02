@@ -12,6 +12,10 @@ namespace Todoist.Configuration.Services
             {
                 options.User.RequireUniqueEmail = true;
                 options.Password.RequiredLength = 0;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false;
 
             }).AddEntityFrameworkStores<DataContext>();
 

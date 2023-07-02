@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Todoist.BusinessLogic\Todoist.BusinessLogic.csproj" />
     <ProjectReference Include="..\Todoist.Data\Todoist.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Views\" />
   </ItemGroup>
 
   <ItemGroup>

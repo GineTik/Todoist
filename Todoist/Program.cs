@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Todoist.BusinessLogic.Services.Users;
+using Todoist.BusinessLogic.Services.Users.Authentication;
 using Todoist.Configuration.Services;
 using Todoist.Data.EF;
 
@@ -16,6 +18,9 @@ namespace Todoist
             builder.Services.AddMvc();
 
             builder.Services.ConfigureIdentity();
+
+            builder.Services.AddTransient<IUserService, UserService>();
+            builder.Services.AddTransient<IUserAuthenticationService, UserAuthenticationService>();
 
             var app = builder.Build();
 
