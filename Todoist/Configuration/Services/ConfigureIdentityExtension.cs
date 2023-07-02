@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Todoist.Data.EF;
 using Todoist.Data.Models;
 
 namespace Todoist.Configuration.Services
@@ -10,10 +11,10 @@ namespace Todoist.Configuration.Services
             services.AddIdentity<User, IdentityRole<int>>(options =>
             {
                 options.User.RequireUniqueEmail = true;
-
                 options.Password.RequiredLength = 0;
-                options.Password.
-            });
+
+            }).AddEntityFrameworkStores<DataContext>();
+
             return services;
         }
     }

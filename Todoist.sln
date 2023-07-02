@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todoist", "Todoist\Todoist.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todoist.Data", "Todoist.Data\Todoist.Data.csproj", "{09CD19F0-13BE-4060-9EFE-6100A7F514E2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todoist.BusinessLogic", "Todoist.BusinessLogic\Todoist.BusinessLogic.csproj", "{AB96A1ED-74CB-4FB4-BA5C-4FDE3193A37E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{09CD19F0-13BE-4060-9EFE-6100A7F514E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09CD19F0-13BE-4060-9EFE-6100A7F514E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09CD19F0-13BE-4060-9EFE-6100A7F514E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB96A1ED-74CB-4FB4-BA5C-4FDE3193A37E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB96A1ED-74CB-4FB4-BA5C-4FDE3193A37E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB96A1ED-74CB-4FB4-BA5C-4FDE3193A37E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB96A1ED-74CB-4FB4-BA5C-4FDE3193A37E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
