@@ -13,5 +13,6 @@ namespace Todoist.Data.Models
         public int Priority { get; set; }
 
         public int BoardId { get; set; }
+        public Board Board { get; set; }
     }
 }

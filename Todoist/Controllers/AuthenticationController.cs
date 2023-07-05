@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Todoist.BusinessLogic.DTOs.User.Authentication;
 using Todoist.BusinessLogic.Services.Users.Authentication;
-using Todoist.Helpers;
+using Todoist.Helpers.StaticMethods;
 
 namespace Todoist.Controllers
 {
-    public class AuthenticationController : Controller
+    public sealed class AuthenticationController : Controller
     {
         private readonly IUserAuthenticationService _authenticationService;
 
@@ -68,7 +68,7 @@ namespace Todoist.Controllers
         public async Task<IActionResult> Logout()
         {
             await _authenticationService.LogoutAsync();
-            return Redirect("");
+            return RedirectToAction("Index", "Home");
         }
 
         private void addIdentityErrorsToModelStateErrors(IEnumerable<IdentityError> errors)

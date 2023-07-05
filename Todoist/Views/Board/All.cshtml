@@ -1,0 +1,58 @@
+﻿@using System.Text.Json;
+@using Todoist.BusinessLogic.DTOs.Board;
+@using Todoist.Controllers;
+
+@model IEnumerable<BoardDTO>
+
+<div class="boards d-flex justify-content-center flex-column mt-5 mx-auto" style="width: 400px;">
+    <h3 class="fw-bold">Boards</h3>
+    <div class="boards__content">
+        @foreach (var board in Model)
+        {
+            @await Html.PartialAsync("_BoardItemPartial", board)
+        }
+    </div>
+    <div class="bg-light p-2 d-flex">
+        <input class="form-control create-name-input me-1" type="text" placeholder="Board name" />
+        <div class="btn btn-primary w-100 create-btn">Create new board</div>
+    </div>
+    <div class="create-error"></div>
+</div>
+
+@section Scripts {
+    <script>
+        let $boards = $(".boards");
+        let $boardsContent = $(".boards__content");
+        let $createBoardBtn = $(".create-btn");
+        let $createBoardInput = $(".create-name-input");
+        let $errorField = $(".create-error");
+        
+        let boardsRemoveBtnClass = ".remove-btn";
+
+        $createBoardBtn.click(function () {
+            $.post('@Url.ActionLink(nameof(BoardController.Create), "Board")', { name: $createBoardInput.val() })
+                .done(function (boardHtml) {
+                    $boardsContent.append(boardHtml);
+                    $createBoardInput.val("");
+                })
+                .fail(function (e) {
+                    console.error(e);
+                    $errorField.text("Creating a new board is failed");
+                });
+        });
+
+        $boardsContent.on("click", boardsRemoveBtnClass, function (e) {
+            let $clickedBoard = $(e.target).parent();
+
+            $.post('@Url.ActionLink(nameof(BoardController.Remove), "Board")', { id: $clickedBoard.attr("board-id") })
+                .done(function () {
+                    $clickedBoard.remove();
+                })
+                .fail(function (e) {
+                    console.error(e);
+                    $errorField.text("Take exception! Id incorect or you not is author");
+                });
+        });
+
+    </script>
+}

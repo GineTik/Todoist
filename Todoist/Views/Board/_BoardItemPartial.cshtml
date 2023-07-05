@@ -1,0 +1,12 @@
+﻿@using Todoist.BusinessLogic.DTOs.Board;
+@using Todoist.Controllers;
+@model BoardDTO
+
+<span class="board d-flex w-100 mb-3 p-2 bg-light" board-id="@Model.Id">
+    <a class="link-primary" href="@Url.ActionLink("All", "TodoTask", new { boardId = Model.Id })">@Model.Name</a>
+    <span class="remove-btn d-block ms-auto btn p-0"
+          post-link="@Url.ActionLink(nameof(BoardController.Create), "Board")"
+          post-params="{ name: $createBoardInput.val() }">
+          Видалити
+    </span>
+</span>
