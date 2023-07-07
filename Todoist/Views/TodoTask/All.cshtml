@@ -6,6 +6,7 @@
 @section Header 
 {
     <a class="ms-3 link-primary" href="@Url.ActionLink("All", "Board")">to all boards</a>
+    <span class="ms-3">Board name: @Model.Name</span>
 }
 
 <div class="tasks d-flex justify-content-center flex-column mt-5 mx-auto" style="width: 400px;">
@@ -17,47 +18,24 @@
         }
     </div>
     <div class="bg-light p-2 d-flex">
-        <input class="form-control create-name-input me-1" type="text" placeholder="task name" />
+        <input class="form-control create-input me-1" type="text" placeholder="task name" />
         <div class="btn btn-primary w-100 create-btn">Create new task</div>
     </div>
     <div class="create-error"></div>
 </div>
 
 @section Scripts {
-    <script>
+    <script type="module">
+        import init from "/js/senders/task.js";
 
-        let $boards = $(".tasks");
-        let $boardsContent = $(".tasks__content");
-        let $createBtn = $(".create-btn");
-        let $createInput = $(".create-name-input");
-        let $errorField = $(".create-error");
+        @{
+            string controllerName = "TodoTask";
+        }
 
-        let removeBtnClass = ".task__remove-btn";
-
-        $createBtn.click(function () {
-            $.post('@Url.ActionLink(nameof(TodoTaskController.Create), "TodoTask")', { name: $createInput.val(), boardId: @Model.Id })
-                .done(function (taskHtml) {
-                    $boardsContent.append(taskHtml);
-                    $createInput.val("");
-                })
-                .fail(function (e) {
-                    console.error(e);
-                    $errorField.text("Creating a new task is failed");
-                });
+        init({
+            createLink: "@Url.ActionLink(nameof(TodoTaskController.Create), controllerName)",
+            removeLink: "@Url.ActionLink(nameof(TodoTaskController.Remove), controllerName)",
+            boardId: @Model.Id
         });
-
-        $boardsContent.on("click", removeBtnClass, function (e) {
-            let $clickedTask = $(e.target).parent();
-
-            $.post('@Url.ActionLink(nameof(TodoTaskController.Remove), "TodoTask")', { taskId: $clickedTask.attr("task-id") })
-                .done(function () {
-                    $clickedTask.remove();
-                })
-                .fail(function (e) {
-                    console.error(e);
-                    $errorField.text("Take exception! Id incorect or you not is author");
-                });
-        });
-
     </script>
 }
