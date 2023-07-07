@@ -2,9 +2,14 @@
 @using Todoist.Controllers;
 @model BoardDTO
 
-<span class="board d-flex w-100 mb-3 p-2 bg-light" board-id="@Model.Id">
-    <a class="link-primary" href="@Url.ActionLink("All", "TodoTask", new { boardId = Model.Id })">@Model.Name</a>
-    <span class="remove-btn d-block ms-auto btn p-0">
+<div class="board d-flex w-100 mb-3 p-2 bg-light" board-id="@Model.Id">
+    <a class="link-primary" href="@Url.ActionLink("All", "TodoTask", new { boardId = Model.Id })">
+        @Model.Name
+    </a>
+    <div class="edit-btn ms-auto btn p-0">
+          Змінити
+    </div>
+    <div class="remove-btn ms-auto btn p-0">
           Видалити
-    </span>
-</span>
+    </div>
+</div>

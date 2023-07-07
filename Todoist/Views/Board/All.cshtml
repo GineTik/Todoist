@@ -14,10 +14,10 @@
         }
     </div>
     <div class="bg-light p-2 d-flex">
-        <input class="form-control create-input me-1" type="text" placeholder="Board name" />
+        <input class="form-control me-1" name="name" type="text" placeholder="Board name" />
         <div class="btn btn-primary w-100 create-btn">Create new board</div>
     </div>
-    <div class="create-error"></div>
+    <div class="error-field"></div>
 </div>
 
 @section Scripts {
@@ -27,11 +27,13 @@
         @{
             var createActionLink = Url.ActionLink<BoardController>(nameof(BoardController.Create));
             var removeActionLink = Url.ActionLink<BoardController>(nameof(BoardController.Remove));
+            var editNameActionLink = Url.ActionLink<BoardController>(nameof(BoardController.EditName));
         }
 
         init({
             createLink: "@createActionLink",
-            removeLink: "@removeActionLink"
+            removeLink: "@removeActionLink",
+            editNameLink: "@editNameActionLink"
         });
     </script>
 }

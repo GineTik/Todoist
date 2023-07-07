@@ -17,6 +17,12 @@ namespace Todoist.BusinessLogic.Services.Boards
             _mapper = mapper;
         }
 
+        public async Task<bool> BoardBelongToUserAsync(BoardBelongToUserDTO dto)
+        {
+            var board = await _context.Boards.FirstOrDefaultAsync(board => board.Id == dto.BoardId);
+            return boardBelongToUser(board, dto.UserId);
+        }
+
         public async Task<BoardDTO> CreateAsync(CreateBoardDTO dto)
         {
             var newBoard = _mapper.Map<Board>(dto);
@@ -25,6 +31,20 @@ namespace Todoist.BusinessLogic.Services.Boards
             await _context.SaveChangesAsync();
 
             return _mapper.Map<BoardDTO>(newBoard);
+        }
+
+        public async Task<BoardDTO> EditNameAsync(EditNameBoardDTO dto)
+        {
+            var board = await _context.Boards.FirstOrDefaultAsync(board => board.Id == dto.BoardId);
+
+            if (boardBelongToUser(board, dto.AuthorId) == false)
+                throw new ArgumentException("Board not exists or user is not author");
+
+            board!.Name = dto.Name;
+            var result = _context.Boards.Update(board);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<BoardDTO>(result.Entity);
         }
 
         public async Task<IEnumerable<BoardDTO>> GetAllAsync(int userId)
@@ -49,14 +69,16 @@ namespace Todoist.BusinessLogic.Services.Boards
             var boardToRemove = await _context.Boards
                 .FirstOrDefaultAsync(board => board.Id == dto.Id);
 
-            if (boardToRemove == null)
-                throw new ArgumentOutOfRangeException("Id not correct");
-
-            if (boardToRemove.AuthorId != dto.UserId)
-                throw new ArgumentException("User is not author");
+            if (boardBelongToUser(boardToRemove, dto.AuthorId) == false)
+                throw new ArgumentException("Board not exists or user is not author");
 
             _context.Boards.Remove(boardToRemove);
             await _context.SaveChangesAsync();
+        }
+
+        private bool boardBelongToUser(Board? board, int userId)
+        {
+            return board?.AuthorId == userId;
         }
     }
 }

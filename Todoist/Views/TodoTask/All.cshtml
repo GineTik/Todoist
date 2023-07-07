@@ -38,11 +38,13 @@
         @{
             var createActionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.Create));
             var removeActionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.Remove));
+            var editActionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.Edit));
         }
 
         init({
             createLink: "@createActionLink",
             removeLink: "@removeActionLink",
+            editLink: "@editActionLink",
             boardId: @Model.Id
         });
     </script>

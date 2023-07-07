@@ -8,5 +8,7 @@ namespace Todoist.BusinessLogic.Services.Boards
         Task RemoveAsync(RemoveBoardDTO dto);
         Task<IEnumerable<BoardDTO>> GetAllAsync(int userId);
         Task<BoardWithTasksDTO?> GetAsync(int boardId);
+        Task<BoardDTO> EditNameAsync(EditNameBoardDTO dto);
+        Task<bool> BoardBelongToUserAsync(BoardBelongToUserDTO dto);
     }
 }

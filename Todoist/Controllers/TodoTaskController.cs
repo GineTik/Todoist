@@ -48,5 +48,20 @@ namespace Todoist.Controllers
             });
             return Ok();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(string name, string description, DateTime closingDate, int taskId)
+        {
+            var task = await _taskService.EditAsync(new EditTaskDTO
+            {
+                TaskId = taskId,
+                Title = name,
+                Description = description,
+                ClosingDate = closingDate,
+                AuthorId = HttpContext.GetAuthenticationUserId()
+            });
+
+            return PartialView("_TaskItemPartial", task);
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
         Task<IEnumerable<TodoTaskDTO>> GetAllAsync(GetTaskDTO dto);
         Task<TodoTaskDTO> CreateAsync(CreateTaskDTO dto);
         Task RemoveAsync(RemoveTaskDTO dto);
+        Task<TodoTaskDTO> EditAsync(EditTaskDTO dto);
     }
 }

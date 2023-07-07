@@ -41,10 +41,23 @@ namespace Todoist.Controllers
             await _boardService.RemoveAsync(new RemoveBoardDTO
             {
                 Id = id,
-                UserId = HttpContext.GetAuthenticationUserId()
+                AuthorId = HttpContext.GetAuthenticationUserId()
             });
 
             return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditName(int id, string name)
+        {
+            var editedBoard = await _boardService.EditNameAsync(new EditNameBoardDTO
+            {
+                BoardId = id,
+                Name = name,
+                AuthorId = HttpContext.GetAuthenticationUserId()
+            });
+
+            return PartialView("_BoardItemPartial", editedBoard);
         }
     }
 }
