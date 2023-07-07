@@ -26,14 +26,14 @@ namespace Todoist.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string name, int boardId)
+        public async Task<IActionResult> Create(string name, string description, DateTime closingDate, int boardId)
         {
             var task = await _taskService.CreateAsync(new CreateTaskDTO
             {
                 Title = name,
-                Description = "",
+                Description = description,
                 BoardId = boardId,
-                ClosingTime = DateTime.UtcNow
+                ClosingDate = closingDate
             });
             return PartialView("_TaskItemPartial", task);
         }

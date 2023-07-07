@@ -9,20 +9,24 @@ function send(link: string, data: object, errorMessage: string): JQuery.jqXHR {
         });
 }
 
-export function createEntityByClick(link: string, getData: Function, $container: JQuery<HTMLElement>, errorMessage: string) {
+export function createEntityByClick(params: { link: string, getData: Function, $container: JQuery<HTMLElement>, errorMessage: string, $inputsToClean: JQuery<HTMLElement>[] }) {
     const $createBtn = $(".create-btn");
-    const $inputs = $(".create-input");
+    const { link, getData, $container, errorMessage, $inputsToClean } = params;
 
     $createBtn.click(function () {
         send(link, getData(), errorMessage)
             .done((html) => {
                 $container.append(html);
-                $inputs.val("");
+                $inputsToClean.forEach($input => {
+                    $input.val("");
+                });
             });
     });
 }
 
-export function removeEntityByClick(link: string, getData: Function, $container: JQuery<HTMLElement>, errorMessage: string) {
+export function removeEntityByClick(params: { link: string, getData: Function, $container: JQuery<HTMLElement>, errorMessage: string }) {
+    var { link, getData, $container, errorMessage } = params;
+
     $container.on("click", ".remove-btn", function (e) {
         let $clickedBoard = $(e.target).parent();
 

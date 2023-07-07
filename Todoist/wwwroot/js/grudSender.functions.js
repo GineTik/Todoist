@@ -6,18 +6,22 @@ function send(link, data, errorMessage) {
         console.error(e);
     });
 }
-export function createEntityByClick(link, getData, $container, errorMessage) {
+export function createEntityByClick(params) {
     const $createBtn = $(".create-btn");
-    const $inputs = $(".create-input");
+    const { link, getData, $container, errorMessage, $inputsToClean } = params;
     $createBtn.click(function () {
         send(link, getData(), errorMessage)
             .done((html) => {
             $container.append(html);
-            $inputs.val("");
+            $inputsToClean.forEach($input => {
+                console.log($input);
+                $input.val("");
+            });
         });
     });
 }
-export function removeEntityByClick(link, getData, $container, errorMessage) {
+export function removeEntityByClick(params) {
+    var { link, getData, $container, errorMessage } = params;
     $container.on("click", ".remove-btn", function (e) {
         let $clickedBoard = $(e.target).parent();
         send(link, getData($clickedBoard), errorMessage)

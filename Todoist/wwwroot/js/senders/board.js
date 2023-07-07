@@ -2,7 +2,18 @@ import { createEntityByClick, removeEntityByClick } from "../grudSender.function
 export default function init(params) {
     const $boardsContent = $(".boards__content");
     const $createInput = $(".create-input");
-    createEntityByClick(params.createLink, () => ({ name: $createInput.val() }), $boardsContent, 'Creating a new board is failed');
-    removeEntityByClick(params.removeLink, ($clickedBoard) => ({ id: $clickedBoard.attr("board-id") }), $boardsContent, 'Take exception! Id incorect or you not is author');
+    createEntityByClick({
+        link: params.createLink,
+        getData: () => ({ name: $createInput.val() }),
+        $container: $boardsContent,
+        errorMessage: 'Creating a new board is failed',
+        $inputsToClean: [$createInput]
+    });
+    removeEntityByClick({
+        link: params.removeLink,
+        getData: ($clickedBoard) => ({ id: $clickedBoard.attr("board-id") }),
+        $container: $boardsContent,
+        errorMessage: 'Take exception! Id incorect or you not is author'
+    });
 }
 //# sourceMappingURL=board.js.map

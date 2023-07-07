@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Todoist.BusinessLogic.DTOs.Board;
 using Todoist.BusinessLogic.Services.Boards;
-using Todoist.Data.Models;
+using Todoist.Helpers.Extensions;
 
 namespace Todoist.Controllers
 {
@@ -11,19 +10,16 @@ namespace Todoist.Controllers
     public sealed class BoardController : Controller
     {
         private readonly IBoardService _boardService;
-        private readonly UserManager<User> _userManager;
 
-        public BoardController(IBoardService boardService, UserManager<User> userManager)
+        public BoardController(IBoardService boardService)
         {
             _boardService = boardService;
-            _userManager = userManager;
         }
-
-        public int UserId => _userManager.GetUserAsync(HttpContext.User).Result!.Id;
 
         public async Task<IActionResult> All()
         {
-            var boards = await _boardService.GetAllAsync(UserId);
+            int userId = HttpContext.GetAuthenticationUserId();
+            var boards = await _boardService.GetAllAsync(userId);
             return View(boards);
         }
 
@@ -33,7 +29,7 @@ namespace Todoist.Controllers
             var newBoard = await _boardService.CreateAsync(new CreateBoardDTO
             {
                 Name = name,
-                AuthorId = UserId
+                AuthorId = HttpContext.GetAuthenticationUserId()
             });
 
             return PartialView("_BoardItemPartial", newBoard);
@@ -45,7 +41,7 @@ namespace Todoist.Controllers
             await _boardService.RemoveAsync(new RemoveBoardDTO
             {
                 Id = id,
-                UserId = UserId
+                UserId = HttpContext.GetAuthenticationUserId()
             });
 
             return Ok();

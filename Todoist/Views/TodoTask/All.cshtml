@@ -19,8 +19,14 @@
         }
     </div>
     <div class="bg-light p-2 d-flex">
-        <input class="form-control create-input me-1" type="text" placeholder="task name" />
-        <div class="btn btn-primary w-100 create-btn">Create new task</div>
+        <div class="flex-row">
+            <input class="form-control me-1" name="name" type="text" placeholder="task name" />
+            <input class="form-control" name="description" type="datetime" placeholder="description" />
+        </div>
+        <div class="flex-row">
+            <input class="form-control" name="datatime" type="text" placeholder="closing date" />
+            <div class="btn btn-primary w-100 create-btn">Create new task</div>
+        </div>
     </div>
     <div class="create-error"></div>
 </div>
@@ -35,8 +41,8 @@
         }
 
         init({
-            createLink: @createActionLink,
-            removeLink: @removeActionLink,
+            createLink: "@createActionLink",
+            removeLink: "@removeActionLink",
             boardId: @Model.Id
         });
     </script>

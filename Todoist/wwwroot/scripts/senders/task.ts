@@ -3,19 +3,29 @@
 export default function init(params: { createLink: string, removeLink: string, boardId: number }) {
 
     const $tasks_content = $(".tasks__content");
-    const $createInput = $(".create-input");
+    const $inputs = {
+        name: $("input[name='name']"),
+        description: $("input[name='description']"),
+        datatime: $("input[name='datatime']")
+    }
 
-    createEntityByClick(
-        params.createLink,
-        () => ({ name: $createInput.val(), boardId: params.boardId }),
-        $tasks_content,
-        'Creating a new task is failed',
-    );
+    createEntityByClick({
+        link: params.createLink,
+        getData: () => ({
+            name: $inputs.name.val(),
+            description: $inputs.description.val(),
+            closingDate: $inputs.datatime.val(),
+            boardId: params.boardId
+        }),
+        $container: $tasks_content,
+        errorMessage: 'Creating a new task is failed',
+        $inputsToClean: Object.keys($inputs).map(key => $inputs[key])
+    });
 
-    removeEntityByClick(
-        params.removeLink,
-        ($clickedTask) => ({ taskId: $clickedTask.attr("task-id") }),
-        $tasks_content,
-        'Take exception! Id incorect or you not is author'
-    );
+    removeEntityByClick({
+        link: params.removeLink,
+        getData: ($clickedTask) =>({ taskId: $clickedTask.attr("task-id") }),
+        $container: $tasks_content,
+        errorMessage: 'Take exception! Id incorect or you not is author'
+    });
 }

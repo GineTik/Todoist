@@ -8,7 +8,7 @@ namespace Todoist.BusinessLogic.DTOs.TodoTask
         public string Title { get; set; } = default!;
         public string Description { get; set; } = default!;
         [Required]
-        public DateTime ClosingTime { get; set; }
+        public DateTime ClosingDate { get; set; }
         public int BoardId { get; set; }
     }
 }
