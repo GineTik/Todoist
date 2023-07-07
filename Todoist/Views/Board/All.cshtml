@@ -1,6 +1,7 @@
 ﻿@using System.Text.Json;
 @using Todoist.BusinessLogic.DTOs.Board;
 @using Todoist.Controllers;
+@using Todoist.Helpers.Extensions;
 
 @model IEnumerable<BoardDTO>
 
@@ -24,12 +25,13 @@
         import init from "/js/senders/board.js";
 
         @{
-            string controllerName = "Board";
+            var createActionLink = Url.ActionLink<BoardController>(nameof(BoardController.Create));
+            var removeActionLink = Url.ActionLink<BoardController>(nameof(BoardController.Remove));
         }
 
         init({
-            createLink: "@Url.ActionLink(nameof(BoardController.Create), controllerName)",
-            removeLink: "@Url.ActionLink(nameof(BoardController.Remove), controllerName)"
+            createLink: "@createActionLink",
+            removeLink: "@removeActionLink"
         });
     </script>
 }

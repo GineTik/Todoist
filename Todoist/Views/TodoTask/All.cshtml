@@ -1,5 +1,6 @@
 ﻿@using Todoist.BusinessLogic.DTOs.Board;
 @using Todoist.BusinessLogic.DTOs.TodoTask;
+@using Todoist.Helpers.Extensions;
 @using Todoist.Controllers;
 @model BoardWithTasksDTO
 
@@ -29,12 +30,13 @@
         import init from "/js/senders/task.js";
 
         @{
-            string controllerName = "TodoTask";
+            var createActionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.Create));
+            var removeActionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.Remove));
         }
 
         init({
-            createLink: "@Url.ActionLink(nameof(TodoTaskController.Create), controllerName)",
-            removeLink: "@Url.ActionLink(nameof(TodoTaskController.Remove), controllerName)",
+            createLink: @createActionLink,
+            removeLink: @removeActionLink,
             boardId: @Model.Id
         });
     </script>
