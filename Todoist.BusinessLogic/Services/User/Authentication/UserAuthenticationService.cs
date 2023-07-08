@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Todoist.BusinessLogic.DTOs.User;
+using System.Security.Claims;
 using Todoist.BusinessLogic.DTOs.User.Authentication;
 using Todoist.Data.Models;
 
@@ -42,11 +42,6 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
 
         public async Task<IdentityResult> RegistrationAsync(RegistrationDTO dto)
         {
-            //var userExists = await _userService.UserExistsAsync(dto.Email);
-
-            //if (userExists == false)
-            //    return IdentityResult.Failed(;
-
             var user = new User
             {
                 Email = dto.Email,
@@ -64,6 +59,37 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
         public async Task LogoutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task ExternalLoginAsync(ExternalLoginInfo info)
+        {
+            var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider,
+                info.ProviderKey, isPersistent: REMEMBER_ME, bypassTwoFactor: true);
+
+            if (signInResult.Succeeded == true)
+                return;
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email) ??
+                throw new InvalidOperationException($"Email claim not received from: {info.LoginProvider}");
+
+            var user = 
+                await _userManager.FindByEmailAsync(email) ??
+                await registrationWithoutPassword(email);
+
+            await _userManager.AddLoginAsync(user, info);
+            await _signInManager.SignInAsync(user, isPersistent: REMEMBER_ME);
+        }
+
+        private async Task<User> registrationWithoutPassword(string email)
+        {
+            var user = new User
+            {
+                UserName = email,
+                Email = email
+            };
+
+            await _userManager.CreateAsync(user);
+            return user;
         }
     }
 }

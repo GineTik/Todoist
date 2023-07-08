@@ -25,14 +25,16 @@
 
         @if (user != null)
         {
-            <span class="me-3 fs-5">@user.Email</span>
-            <a class="btn btn-primary" asp-controller="Authentication" asp-action="Logout">Logout</a>
+            <div class="bg-light p-2">
+                <span class="mx-3 fs-6">@user.Email</span>
+                <a class="btn btn-primary px-4" asp-controller="Authentication" asp-action="Logout">Logout</a>
+            </div>
         }
         else
         {
-            <div class="btn-group">
-                <a class="btn btn-primary" asp-controller="Authentication" asp-action="Login">Login</a>
-                <a class="btn btn-primary" asp-controller="Authentication" asp-action="Registration">Registration</a>
+            <div class="bg-light p-2">
+                <a class="btn btn-primary px-4" asp-controller="Authentication" asp-action="Login">Login</a>
+                <a class="btn btn-primary px-4" asp-controller="Authentication" asp-action="Registration">Registration</a>
             </div>
         }
 

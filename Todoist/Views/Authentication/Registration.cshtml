@@ -1,12 +1,19 @@
 ﻿@model RegistrationDTO
 
-<form asp-controller="Authentication" asp-action="Registration" method="POST">
+<form asp-controller="Authentication" asp-action="Registration" method="POST"
+    class="m-auto d-flex flex-column" style="width: 300px;">
     @Html.AntiForgeryToken()
 
-    <input asp-for="Email" placeholder="email" />
-    <input asp-for="Password" placeholder="password" />
-    <input asp-for="ConfirmPassword" placeholder="confirm password" />
-    <button>Registration</button>
+    <h2 class="fw-bold">Registration</h2>
+    <div class="bg-light p-2">
+        <input asp-for="Email" placeholder="email" class="form-control mb-2" />
+        <input asp-for="Password" placeholder="password" class="form-control mb-2" />
+        <input asp-for="ConfirmPassword" placeholder="confirm password" class="form-control mb-2" />
+        <button class="btn btn-primary w-100">Registration</button>
+    </div>
 
     <div asp-validation-summary="All"></div>
+    
+    <partial name="_ExternalLoginsPartial"></partial>
 </form>
+

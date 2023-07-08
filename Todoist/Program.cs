@@ -1,7 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Todoist.BusinessLogic.Services.Boards;
-using Todoist.BusinessLogic.Services.Users;
-using Todoist.BusinessLogic.Services.Users.Authentication;
 using Todoist.Configuration.Services;
 using Todoist.Data.EF;
 
@@ -19,6 +16,7 @@ namespace Todoist
             builder.Services.AddMvc();
 
             builder.Services.ConfigureIdentity();
+            builder.Services.ConfigureAuthentication(builder.Configuration);
             builder.Services.AddServices();
             builder.Services.AddAutoMapperProfiles();
 

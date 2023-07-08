@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Todoist.BusinessLogic.DTOs.User.Authentication;
 using Todoist.BusinessLogic.Services.Users.Authentication;
+using Todoist.Data.Models;
 using Todoist.Helpers.StaticMethods;
 
 namespace Todoist.Controllers
@@ -10,10 +12,12 @@ namespace Todoist.Controllers
     public sealed class AuthenticationController : Controller
     {
         private readonly IUserAuthenticationService _authenticationService;
+        private readonly SignInManager<User> _signInManager;
 
-        public AuthenticationController(IUserAuthenticationService authenticationService)
+        public AuthenticationController(IUserAuthenticationService authenticationService, SignInManager<User> signInManager)
         {
             _authenticationService = authenticationService;
+            _signInManager = signInManager;
         }
 
         public IActionResult Login()
@@ -64,11 +68,45 @@ namespace Todoist.Controllers
 
             return RedirectHelpers.RedirectBeforeSuccessAuthentication();
         }
-         
+
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await _authenticationService.LogoutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult ExternalLogin(string provider)
+        {
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback));
+
+            var properties =
+                _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+
+            return new ChallengeResult(provider, properties);
+        }
+
+        public async Task<IActionResult> ExternalLoginCallback(string? remoteError)
+        {
+            if (remoteError != null)
+                return externalLoginError($"Error from external provider: {remoteError}");
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+                return externalLoginError("Error loading external login information.");
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (email == null)
+                return externalLoginError($"Email claim not received from: {info.LoginProvider}");
+
+            await _authenticationService.ExternalLoginAsync(info);
+            return RedirectHelpers.RedirectBeforeSuccessAuthentication();
+        }
+
+        private IActionResult externalLoginError(string error)
+        {
+            ModelState.AddModelError(string.Empty, error);
+            return View("Login");
         }
 
         private void addIdentityErrorsToModelStateErrors(IEnumerable<IdentityError> errors)

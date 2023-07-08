@@ -10,7 +10,7 @@
     <div class="boards__content">
         @foreach (var board in Model)
         {
-            @await Html.PartialAsync("_BoardItemPartial", board)
+            <partial name="_BoardItemPartial" model="board"></partial>
         }
     </div>
     <div class="bg-light p-2 d-flex">

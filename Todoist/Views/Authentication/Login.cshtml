@@ -1,11 +1,16 @@
 ﻿@model LoginDTO
 
-<form asp-controller="Authentication" asp-action="Login" method="post">
+<form asp-controller="Authentication" asp-action="Login" method="post"
+    class="m-auto d-flex flex-column" style="width: 300px;">
     @Html.AntiForgeryToken()
 
-    <input asp-for="Email" />
-    <input asp-for="Password" />
-    <button>Login</button>
-
+    <h2 class="fw-bold">Login</h2>
+    <div class="bg-light p-2">
+        <input asp-for="Email" placeholder="email" class="form-control mb-2" />
+        <input asp-for="Password" placeholder="password" class="form-control mb-2" />
+        <button class="btn btn-primary w-100">Login</button>
+    </div>
     <div asp-validation-summary="All"></div>
+
+    <partial name="_ExternalLoginsPartial"></partial>
 </form>

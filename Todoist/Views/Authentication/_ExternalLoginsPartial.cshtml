@@ -1,0 +1,18 @@
+﻿@inject SignInManager<User> _signInManager
+
+@{
+    var externalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+}
+
+<h5 class="fw-bold">External logins</h5>
+
+<div class="bg-light p-2 pb-0">
+@foreach (var provider in externalLogins)
+{
+    <a asp-action="ExternalLogin" asp-route-provider="@provider.Name"
+        class="btn btn-primary w-100 mb-2"
+        title="Login using your @provider.DisplayName account">
+        @provider.DisplayName
+    </a>
+}
+</div>
