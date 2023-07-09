@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Todoist.BusinessLogic.DTOs.Board;
 using Todoist.BusinessLogic.Services.Boards;
-using Todoist.Helpers.Extensions;
 
 namespace Todoist.Controllers
 {
@@ -18,45 +17,28 @@ namespace Todoist.Controllers
 
         public async Task<IActionResult> All()
         {
-            int userId = HttpContext.GetAuthenticationUserId();
-            var boards = await _boardService.GetAllAsync(userId);
+            var boards = await _boardService.GetAllOfAuthenticatedUserAsync();
             return View(boards);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string name)
+        public async Task<IActionResult> Create(CreateBoardDTO dto)
         {
-            var newBoard = await _boardService.CreateAsync(new CreateBoardDTO
-            {
-                Name = name,
-                AuthorId = HttpContext.GetAuthenticationUserId()
-            });
-
+            var newBoard = await _boardService.CreateAsync(dto);
             return PartialView("_BoardItemPartial", newBoard);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Remove(int id)
+        public async Task<IActionResult> Remove(int boardId)
         {
-            await _boardService.RemoveAsync(new RemoveBoardDTO
-            {
-                Id = id,
-                AuthorId = HttpContext.GetAuthenticationUserId()
-            });
-
+            await _boardService.RemoveAsync(boardId);
             return Ok();
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditName(int id, string name)
+        public async Task<IActionResult> EditName(EditNameBoardDTO dto)
         {
-            var editedBoard = await _boardService.EditNameAsync(new EditNameBoardDTO
-            {
-                BoardId = id,
-                Name = name,
-                AuthorId = HttpContext.GetAuthenticationUserId()
-            });
-
+            var editedBoard = await _boardService.EditNameAsync(dto);
             return PartialView("_BoardItemPartial", editedBoard);
         }
     }

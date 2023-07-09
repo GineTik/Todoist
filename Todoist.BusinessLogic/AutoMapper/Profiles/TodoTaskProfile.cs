@@ -8,14 +8,8 @@ namespace Todoist.BusinessLogic.AutoMapper.Profiles
     {
         public TodoTaskProfile()
         {
-            CreateMap<TodoTask, TodoTaskDTO>()
-                .ReverseMap();
-            CreateMap<TodoTask, GetTaskDTO>()
-                .ReverseMap();
-            CreateMap<TodoTask, CreateTaskDTO>()
-                .ReverseMap();
-            CreateMap<TodoTask, RemoveTaskDTO>()
-                .ReverseMap();
+            CreateMap<TodoTask, TodoTaskDTO>();
+            CreateMap<CreateTaskDTO, TodoTask>();
         }
     }
 }

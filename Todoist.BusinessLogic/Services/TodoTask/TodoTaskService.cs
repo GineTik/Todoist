@@ -30,25 +30,24 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
             return _mapper.Map<TodoTaskDTO>(task);
         }
 
-        public async Task<IEnumerable<TodoTaskDTO>> GetAllAsync(GetTaskDTO dto)
+        public async Task<IEnumerable<TodoTaskDTO>> GetAllAsync(int boardId)
         {
-            var board = await _context.Boards
-                .Include(board => board.Tasks)
-                .FirstOrDefaultAsync(board => board.Id == dto.BoardId);
+            var tasks = await _context.Tasks
+                .Where(task => task.BoardId == boardId)
+                .ToListAsync();
 
-            if (await _boardService.BoardBelongToUserAsync(new() { BoardId = dto.BoardId, UserId = dto.AuthorId }) == false)
+            if (await _boardService.BoardBelongToAuthenticatedUserAsync(boardId) == false)
                 throw new ArgumentException("Board not exists or user is not author");
 
-            return board!.Tasks
-                .Select(_mapper.Map<TodoTaskDTO>);
+            return _mapper.Map<IEnumerable<TodoTaskDTO>>(tasks);
         }
 
-        public async Task RemoveAsync(RemoveTaskDTO dto)
+        public async Task RemoveAsync(int taskId)
         {
             var task = await _context.Tasks
-                .FirstOrDefaultAsync(task => task.Id == dto.TaskId);
+                .FirstOrDefaultAsync(task => task.Id == taskId);
 
-            if (await notNullAndCorrectAuthorAsync(dto.AuthorId, task) == false)
+            if (await notNullAndCorrectAuthorAsync(task) == false)
                 throw new ArgumentException("TaskId incorrect or user is not author");
 
             _context.Tasks.Remove(task!);
@@ -60,10 +59,10 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
             var task = await _context.Tasks
                 .FirstOrDefaultAsync(task => task.Id == dto.TaskId);
 
-            if (await notNullAndCorrectAuthorAsync(dto.AuthorId, task) == false)
+            if (await notNullAndCorrectAuthorAsync(task) == false)
                 throw new ArgumentException("TaskId incorrect or user is not author");
 
-            task!.Title = dto.Title;
+            task!.Name = dto.Name;
             task.Description = dto.Description; 
             task.ClosingDate = dto.ClosingDate;
 
@@ -72,16 +71,12 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
             return _mapper.Map<TodoTaskDTO>(task);
         }
 
-        private async Task<bool> notNullAndCorrectAuthorAsync(int authorId, TodoTask? task)
+        private async Task<bool> notNullAndCorrectAuthorAsync(TodoTask? task)
         {
             if (task == null)
                 return false;
 
-            return await _boardService.BoardBelongToUserAsync(new()
-            {
-                BoardId = task!.BoardId,
-                UserId = authorId
-            });
+            return await _boardService.BoardBelongToAuthenticatedUserAsync(task!.BoardId);
         }
     }
 }

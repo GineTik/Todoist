@@ -14,6 +14,7 @@ namespace Todoist
                 options.UseSqlServer(builder.Configuration.GetConnectionString("LocalConnection")));
 
             builder.Services.AddMvc();
+            builder.Services.AddHttpContextAccessor();
 
             builder.Services.ConfigureIdentity();
             builder.Services.ConfigureAuthentication(builder.Configuration);

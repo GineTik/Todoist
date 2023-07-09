@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Todoist.BusinessLogic.DTOs.Board;
-using Todoist.BusinessLogic.DTOs.TodoTask;
 using Todoist.Data.Models;
 
 namespace Todoist.BusinessLogic.AutoMapper.Profiles
@@ -9,14 +8,9 @@ namespace Todoist.BusinessLogic.AutoMapper.Profiles
     {
         public BoardProfile()
         {
-            CreateMap<Board, BoardDTO>()
-                .ReverseMap();
-            CreateMap<Board, CreateBoardDTO>()
-                .ReverseMap();
-            CreateMap<Board, RemoveBoardDTO>()
-                .ReverseMap();
-            CreateMap<Board, BoardWithTasksDTO>()
-                .ReverseMap();
+            CreateMap<Board, BoardDTO>();
+            CreateMap<Board, BoardWithTasksDTO>();
+            CreateMap<CreateBoardDTO, Board>();
         }
     }
 }

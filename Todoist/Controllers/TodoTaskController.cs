@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Todoist.BusinessLogic.DTOs.TodoTask;
 using Todoist.BusinessLogic.Services.Boards;
 using Todoist.BusinessLogic.Services.TodoTasks;
-using Todoist.Helpers.Extensions;
 
 namespace Todoist.Controllers
 {
@@ -26,42 +25,24 @@ namespace Todoist.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string name, string description, DateTime closingDate, int boardId)
+        public async Task<IActionResult> Create(CreateTaskDTO dto)
         {
-            var task = await _taskService.CreateAsync(new CreateTaskDTO
-            {
-                Title = name,
-                Description = description,
-                BoardId = boardId,
-                ClosingDate = closingDate
-            });
-            return PartialView("_TaskItemPartial", task);
+            var createdTask = await _taskService.CreateAsync(dto);
+            return PartialView("_TaskItemPartial", createdTask);
         }
 
         [HttpPost]
         public async Task<IActionResult> Remove(int taskId)
         {
-            await _taskService.RemoveAsync(new RemoveTaskDTO
-            {
-                TaskId = taskId,
-                AuthorId = HttpContext.GetAuthenticationUserId()
-            });
+            await _taskService.RemoveAsync(taskId);
             return Ok();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(string name, string description, DateTime closingDate, int taskId)
+        public async Task<IActionResult> Edit(EditTaskDTO dto)
         {
-            var task = await _taskService.EditAsync(new EditTaskDTO
-            {
-                TaskId = taskId,
-                Title = name,
-                Description = description,
-                ClosingDate = closingDate,
-                AuthorId = HttpContext.GetAuthenticationUserId()
-            });
-
-            return PartialView("_TaskItemPartial", task);
+            var editedTask = await _taskService.EditAsync(dto);
+            return PartialView("_TaskItemPartial", editedTask);
         }
     }
 }

@@ -6,6 +6,5 @@ namespace Todoist.BusinessLogic.DTOs.Board
     {
         [Required]
         public string Name { get; set; }
-        public int AuthorId { get; set; }
     }
 }

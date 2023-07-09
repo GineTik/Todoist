@@ -5,7 +5,7 @@ namespace Todoist.BusinessLogic.DTOs.TodoTask
     public class CreateTaskDTO
     {
         [Required]
-        public string Title { get; set; } = default!;
+        public string Name { get; set; } = default!;
         public string Description { get; set; } = default!;
         [Required]
         public DateTime ClosingDate { get; set; }

@@ -4,6 +4,5 @@
     {
         public int BoardId { get; set; }
         public string Name { get; set; } = default!;
-        public int AuthorId { get; set; }
     }
 }

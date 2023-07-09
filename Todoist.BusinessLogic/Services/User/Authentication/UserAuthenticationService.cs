@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Authentication;
 using System.Security.Claims;
+using Todoist.BusinessLogic.DTOs.User;
 using Todoist.BusinessLogic.DTOs.User.Authentication;
 using Todoist.Data.Models;
 
@@ -10,17 +14,23 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
         private readonly IUserService _userService;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly HttpContext _httpContext;
+        private readonly IMapper _mapper;
 
         private const bool REMEMBER_ME = true;
 
         public UserAuthenticationService(
-            IUserService userService, 
-            UserManager<User> userManager, 
-            SignInManager<User> signInManager)
+            IUserService userService,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IHttpContextAccessor httpContextAccessor,
+            IMapper mapper)
         {
             _userService = userService;
             _userManager = userManager;
             _signInManager = signInManager;
+            _httpContext = httpContextAccessor.HttpContext;
+            _mapper = mapper;
         }
 
         public async Task<SignInResult> LoginAsync(LoginDTO dto)
@@ -91,5 +101,22 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
             await _userManager.CreateAsync(user);
             return user;
         }
+
+        public async Task<UserDTO> GetAuthenticatedUserAsync()
+        {
+            if (UserIsAuthenticated == false)
+                throw new AuthenticationException("User not authentication");
+
+            var user = await _userManager.GetUserAsync(_httpContext.User);
+            return _mapper.Map<UserDTO>(user);
+        }
+
+        public async Task<int> GetAuthenticatedUserIdAsync()
+        {
+            var user = await GetAuthenticatedUserAsync();
+            return user.Id;
+        }
+
+        public bool UserIsAuthenticated => _httpContext.User.Identity?.IsAuthenticated ?? false;
     }
 }
