@@ -5,6 +5,6 @@
         public int TaskId { get; set; }
         public string Name { get; set; } = default!;
         public string Description { get; set; } = default!;
-        public DateTime ClosingDate { get; set; }
+        public DateTime DateBeforeExpiration { get; set; }
     }
 }

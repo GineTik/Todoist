@@ -41,7 +41,24 @@ namespace Todoist.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(EditTaskDTO dto)
         {
-            var editedTask = await _taskService.EditAsync(dto);
+            return await editAsync(async () => await _taskService.EditAsync(dto));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleClosedValue(int taskId)
+        {
+            return await editAsync(async () => await _taskService.ToggleClosedAsync(taskId));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditPosition(EditTaskPositionDTO dto)
+        {
+            return await editAsync(async () => await _taskService.EditPositionAsync(dto));
+        }
+
+        private async Task<IActionResult> editAsync(Func<Task<TodoTaskDTO>> getEditedTask)
+        {
+            var editedTask = await getEditedTask();
             return PartialView("_TaskItemPartial", editedTask);
         }
     }

@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Todoist.BusinessLogic.DTOs.User;
 using Todoist.BusinessLogic.DTOs.User.Authentication;
+using Todoist.BusinessLogic.Services.Users;
 using Todoist.BusinessLogic.Services.Users.Authentication;
 using Todoist.Data.Models;
 using Todoist.Helpers.StaticMethods;
@@ -13,11 +15,13 @@ namespace Todoist.Controllers
     {
         private readonly IUserAuthenticationService _authenticationService;
         private readonly SignInManager<User> _signInManager;
+        private readonly IUserService _userService;
 
-        public AuthenticationController(IUserAuthenticationService authenticationService, SignInManager<User> signInManager)
+        public AuthenticationController(IUserAuthenticationService authenticationService, SignInManager<User> signInManager, IUserService userService)
         {
             _authenticationService = authenticationService;
             _signInManager = signInManager;
+            _userService = userService;
         }
 
         public IActionResult Login()
@@ -29,17 +33,19 @@ namespace Todoist.Controllers
         public async Task<IActionResult> Login(LoginDTO dto)
         {
             if (ModelState.IsValid == false)
-            {
                 return View(dto);
-            }
 
             var result = await _authenticationService.LoginAsync(dto);
 
-            if (result.Succeeded == false)
+            IActionResult? actionResult = result switch
             {
-                ModelState.AddModelError("", "Email or password invalid");
-                return View(dto);
-            }
+                { Succeeded: true } => null,
+                { IsNotAllowed: true } => confirmEmailView(dto.Email),
+                _ => loginError("Email or password incorrect", dto),
+            };
+
+            if (actionResult != null)
+                return actionResult;
 
             return RedirectHelpers.RedirectBeforeSuccessAuthentication();
         }
@@ -54,9 +60,7 @@ namespace Todoist.Controllers
         public async Task<IActionResult> Registration(RegistrationDTO dto)
         {
             if (ModelState.IsValid == false)
-            {
                 return View(dto);
-            }
 
             var result = await _authenticationService.RegistrationAsync(dto);
 
@@ -66,7 +70,7 @@ namespace Todoist.Controllers
                 return View(dto);
             }
 
-            return RedirectHelpers.RedirectBeforeSuccessAuthentication();
+            return confirmEmailView(dto.Email);
         }
 
         [Authorize]
@@ -89,30 +93,45 @@ namespace Todoist.Controllers
         public async Task<IActionResult> ExternalLoginCallback(string? remoteError)
         {
             if (remoteError != null)
-                return externalLoginError($"Error from external provider: {remoteError}");
+                return loginError($"Error from external provider: {remoteError}");
 
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
-                return externalLoginError("Error loading external login information.");
+                return loginError("Error loading external login information.");
 
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
             if (email == null)
-                return externalLoginError($"Email claim not received from: {info.LoginProvider}");
+                return loginError($"Email claim not received from: {info.LoginProvider}");
 
             await _authenticationService.ExternalLoginAsync(info);
             return RedirectHelpers.RedirectBeforeSuccessAuthentication();
         }
 
-        private IActionResult externalLoginError(string error)
+        public async Task<IActionResult> ConfirmEmail(ConfirmEmailDTO dto)
+        {
+            var result = await _authenticationService.ConfirmEmail(dto);
+
+            if (result.Succeeded == false)
+                return View(dto);
+
+            return RedirectHelpers.RedirectBeforeSuccessAuthentication();
+        }
+
+        private IActionResult loginError(string error, LoginDTO? dto = null)
         {
             ModelState.AddModelError(string.Empty, error);
-            return View("Login");
+            return View("Login", dto ?? ViewData.Model);
         }
 
         private void addIdentityErrorsToModelStateErrors(IEnumerable<IdentityError> errors)
         {
             foreach (var error in errors)
                 ModelState.AddModelError("", error.Description);
+        }
+
+        private ViewResult confirmEmailView(string email)
+        {
+            return View("ConfirmEmail", new ConfirmEmailDTO { Email = email });
         }
     }
 }

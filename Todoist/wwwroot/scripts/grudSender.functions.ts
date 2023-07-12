@@ -1,7 +1,7 @@
 ﻿
 const $errorField = $(".error-field");
 
-function send(link: string, data: object, errorMessage: string): JQuery.jqXHR {
+export function send(link: string, data: object, errorMessage: string): JQuery.jqXHR {
     return $.post(link, data)
         .fail(function (e) {
             $errorField.text(errorMessage);
@@ -24,29 +24,24 @@ export function createEntityByClick(params: { link: string, getData: Function, $
     });
 }
 
-export function removeEntityByClick(params: { link: string, getData: Function, $container: JQuery<HTMLElement>, errorMessage: string }) {
-    const { link, getData, $container, errorMessage } = params;
+export function removeEntityByClick(params: { link: string, getData: Function, errorMessage: string }) {
+    const { link, getData, errorMessage } = params;
 
-    $container.on("click", ".remove-btn", function (e) {
-        let $clickedBoard = $(e.target).parent();
+    $(document).on("click", ".remove-btn", function () {
+        let $clickedElement = $(this).parent();
 
-        send(link, getData($clickedBoard), errorMessage)
+        send(link, getData($clickedElement), errorMessage)
             .done(() => {
-                $clickedBoard.remove();
+                $clickedElement.remove();
             });
     });
 }
 
-export function editEntityByClick(params: {
-    link: string,
-    getData: Function,
-    $container: JQuery<HTMLElement>,
-    errorMessage: string,
-}) {
-    const { link, getData, $container, errorMessage } = params;
-    
-    $container.on("click", ".edit-btn", function (e) {
-        let $clickedElement = $(e.target).parent();
+export function editEntityByClick(params: {link: string, getData: Function, targetButton: string, errorMessage: string }) {
+    const { link, getData, targetButton, errorMessage } = params;
+
+    $(document).on("click", targetButton, function () {
+        let $clickedElement = $(this).parent();
 
         send(link, getData($clickedElement), errorMessage)
             .done((html) => {

@@ -1,10 +1,12 @@
-﻿import { createEntityByClick, editEntityByClick, removeEntityByClick } from "../grudSender.functions.js";
+﻿import { createEntityByClick, editEntityByClick, removeEntityByClick, send } from "../grudSender.functions.js";
 
 export default function init(params:
 {
     createLink: string,
     removeLink: string,
     editLink: string,
+    toggleClosedValueLink: string,
+    editPositionLink: string,
     boardId: number
 }) {
 
@@ -20,7 +22,7 @@ export default function init(params:
         getData: () => ({
             name: $inputs.name.val(),
             description: $inputs.description.val(),
-            closingDate: $inputs.datetime.val(),
+            dateBeforeExpiration: $inputs.datetime.val(),
             boardId: params.boardId
         }),
         $container: $tasks_content,
@@ -31,8 +33,7 @@ export default function init(params:
     removeEntityByClick({
         link: params.removeLink,
         getData: ($clickedTask) =>({ taskId: $clickedTask.attr("task-id") }),
-        $container: $tasks_content,
-        errorMessage: "Take exception! Id incorect or you not is author"
+        errorMessage: "Remove error! Id incorect or you not is author"
     });
 
     editEntityByClick({
@@ -41,9 +42,30 @@ export default function init(params:
             taskId: $clickedTask.attr("task-id"),
             name: $inputs.name.val(),
             description: $inputs.description.val(),
-            closingDate: $inputs.datetime.val(),
+            dateBeforeExpiration: $inputs.datetime.val(),
         }),
-        $container: $tasks_content,
+        targetButton: ".edit-btn",
         errorMessage: "Edit error! Id incorect or you not is author",
+    });
+
+    editEntityByClick({
+        link: params.toggleClosedValueLink,
+        getData: ($clickedTask) => ({ taskId: $clickedTask.attr("task-id") }),
+        targetButton: ".toggle-closed-value",
+        errorMessage: "Edit error! Id incorect or you not is author"
+    });
+
+    $tasks_content.sortable({
+        stop: function (event, ui) {
+            let allPositions = $(this).sortable("toArray", { attribute: "task-id" }).map(function (value, index) {
+                return { taskId: value, newPosition: index };
+            });
+
+            send(
+                params.editPositionLink,
+                { newPositions: allPositions },
+                "Edit position error"
+            );
+        }
     });
 }

@@ -32,6 +32,7 @@
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script type="module">
         import init from "/js/senders/task.js";
 
@@ -39,12 +40,16 @@
             var createActionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.Create));
             var removeActionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.Remove));
             var editActionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.Edit));
+            var toggleClosedValueActionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.ToggleClosedValue));
+            var editPositionLink = Url.ActionLink<TodoTaskController>(nameof(TodoTaskController.EditPosition));
         }
 
         init({
             createLink: "@createActionLink",
             removeLink: "@removeActionLink",
             editLink: "@editActionLink",
+            toggleClosedValueLink: "@toggleClosedValueActionLink",
+            editPositionLink: "@editPositionLink",
             boardId: @Model.Id
         });
     </script>

@@ -4,7 +4,7 @@ using Todoist.Data.Models;
 
 namespace Todoist.Configuration.Services
 {
-    public static class ConfigureIdentityExtension
+    public static class IdentityExtension
     {
         public static IServiceCollection ConfigureIdentity(this IServiceCollection services)
         {
@@ -17,7 +17,10 @@ namespace Todoist.Configuration.Services
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
 
-            }).AddEntityFrameworkStores<DataContext>();
+                options.SignIn.RequireConfirmedEmail = false;
+            })
+            .AddEntityFrameworkStores<DataContext>()
+            .AddDefaultTokenProviders();
 
             return services;
         }

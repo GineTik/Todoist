@@ -8,5 +8,7 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
         Task<TodoTaskDTO> CreateAsync(CreateTaskDTO dto);
         Task RemoveAsync(int taskId);
         Task<TodoTaskDTO> EditAsync(EditTaskDTO dto);
+        Task<TodoTaskDTO> ToggleClosedAsync(int taskId);
+        Task<TodoTaskDTO> EditPositionAsync(EditTaskPositionDTO dto);
     }
 }

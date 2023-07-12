@@ -9,10 +9,12 @@ namespace Todoist.Data.Models
         public string Name { get; set; } = default!;
         public string? Description { get; set; }
         [Required]
-        public DateTime ClosingDate { get; set; }
+        public DateTime DateBeforeExpiration { get; set; }
+        public bool IsClosed { get; set; }
         public int Priority { get; set; }
+        public int Position { get; set; }
 
         public int BoardId { get; set; }
-        public Board Board { get; set; }
+        public Board? Board { get; set; }
     }
 }

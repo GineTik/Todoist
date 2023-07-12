@@ -1,20 +1,35 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Todoist.Data.EF;
+﻿using Microsoft.AspNetCore.Identity;
+using Todoist.BusinessLogic.Services.Users.Authentication;
+using Todoist.Data.Models;
 
 namespace Todoist.BusinessLogic.Services.Users
 {
     public class UserService : IUserService
     {
-        private readonly DataContext _context;
+        private readonly UserManager<User> _userManager;
+        private readonly IUserAuthenticationService _authenticationService;
 
-        public UserService(DataContext context)
+        public UserService(
+            UserManager<User> userManager, 
+            IUserAuthenticationService authenticationService)
         {
-            _context = context;
+            _userManager = userManager;
+            _authenticationService = authenticationService;
         }
 
-        public async Task<bool> UserExistsAsync(string email)
+        public async Task RemoveAuthenticatedAccountAsync()
         {
-            return await _context.Users.AnyAsync(user => user.Email == email);
+            var userId = await _authenticationService.GetAuthenticatedUserIdAsync();
+            await _authenticationService.LogoutAsync();
+
+            var user = await _userManager.FindByIdAsync(userId.ToString()) ??
+                throw new ArgumentException("User not found");
+
+            var logins = await _userManager.GetLoginsAsync(user);
+            foreach (var login in logins)
+                await _userManager.RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey);
+
+            await _userManager.DeleteAsync(user);
         }
     }
 }

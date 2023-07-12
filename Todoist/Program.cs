@@ -18,8 +18,9 @@ namespace Todoist
 
             builder.Services.ConfigureIdentity();
             builder.Services.ConfigureAuthentication(builder.Configuration);
-            builder.Services.AddServices();
+            builder.Services.AddServices(builder.Configuration);
             builder.Services.AddAutoMapperProfiles();
+            builder.Services.ConfigureOptions(builder.Configuration);
 
             var app = builder.Build();
 

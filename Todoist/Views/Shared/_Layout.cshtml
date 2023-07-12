@@ -25,9 +25,12 @@
 
         @if (user != null)
         {
-            <div class="bg-light p-2">
-                <span class="mx-3 fs-6">@user.Email</span>
-                <a class="btn btn-primary px-4" asp-controller="Authentication" asp-action="Logout">Logout</a>
+            <div class="bg-light p-2 d-flex align-items-center">
+                <span class="fs-6 mx-3">@user.Email</span>
+                <a class="btn btn-primary px-4 me-2" asp-controller="Authentication" asp-action="Logout">Logout</a>
+                <form asp-controller="User" asp-action="RemoveAccount" method="post" class="m-0">
+                    <button class="btn btn-primary px-4">Remove account</button>
+                </form>
             </div>
         }
         else

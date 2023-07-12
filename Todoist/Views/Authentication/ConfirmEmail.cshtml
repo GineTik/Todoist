@@ -1,0 +1,8 @@
+﻿@model ConfirmEmailDTO
+
+<form action="ConfirmEmail">
+    <span>@Model.Email</span>
+    <input type="hidden" asp-for="Email" />
+    <input asp-for="Code" />
+    <button>Confirm email</button>
+</form>

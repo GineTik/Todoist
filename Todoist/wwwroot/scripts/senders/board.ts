@@ -16,7 +16,6 @@ export default function init(params: { createLink: string, removeLink: string, e
     removeEntityByClick({
         link: params.removeLink,
         getData: ($clickedBoard) => ({ boardId: $clickedBoard.attr("board-id") }),
-        $container: $boardsContent,
         errorMessage: "Remove error! Id incorect or you not is author"
     });
 
@@ -24,7 +23,7 @@ export default function init(params: { createLink: string, removeLink: string, e
     editEntityByClick({
         link: params.editNameLink,
         getData: ($clickedBoard) => ({ boardId: $clickedBoard.attr("board-id"), name: $input.val() }),
-        $container: $boardsContent,
+        targetButton: ".edit-btn",
         errorMessage: "Edit error! Id incorect or you not is author",
     });
 }

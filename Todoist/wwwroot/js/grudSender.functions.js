@@ -1,5 +1,5 @@
 const $errorField = $(".error-field");
-function send(link, data, errorMessage) {
+export function send(link, data, errorMessage) {
     return $.post(link, data)
         .fail(function (e) {
         $errorField.text(errorMessage);
@@ -20,19 +20,19 @@ export function createEntityByClick(params) {
     });
 }
 export function removeEntityByClick(params) {
-    const { link, getData, $container, errorMessage } = params;
-    $container.on("click", ".remove-btn", function (e) {
-        let $clickedBoard = $(e.target).parent();
-        send(link, getData($clickedBoard), errorMessage)
+    const { link, getData, errorMessage } = params;
+    $(document).on("click", ".remove-btn", function () {
+        let $clickedElement = $(this).parent();
+        send(link, getData($clickedElement), errorMessage)
             .done(() => {
-            $clickedBoard.remove();
+            $clickedElement.remove();
         });
     });
 }
 export function editEntityByClick(params) {
-    const { link, getData, $container, errorMessage } = params;
-    $container.on("click", ".edit-btn", function (e) {
-        let $clickedElement = $(e.target).parent();
+    const { link, getData, targetButton, errorMessage } = params;
+    $(document).on("click", targetButton, function () {
+        let $clickedElement = $(this).parent();
         send(link, getData($clickedElement), errorMessage)
             .done((html) => {
             $(html).insertBefore($clickedElement);

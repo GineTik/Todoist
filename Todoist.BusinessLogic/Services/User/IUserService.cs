@@ -2,6 +2,6 @@
 {
     public interface IUserService
     {
-        Task<bool> UserExistsAsync(string email);
+        Task RemoveAuthenticatedAccountAsync();
     }
 }

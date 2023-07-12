@@ -10,6 +10,7 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
 
         Task<SignInResult> LoginAsync(LoginDTO dto);
         Task<IdentityResult> RegistrationAsync(RegistrationDTO dto);
+        Task<IdentityResult> ConfirmEmail(ConfirmEmailDTO dto);
         Task ExternalLoginAsync(ExternalLoginInfo info);
         Task LogoutAsync();
         Task<UserDTO> GetAuthenticatedUserAsync();

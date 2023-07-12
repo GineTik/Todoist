@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using Todoist.BusinessLogic.DTOs.TodoTask;
 using Todoist.BusinessLogic.Services.Boards;
 using Todoist.Data.EF;
@@ -56,17 +57,58 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
 
         public async Task<TodoTaskDTO> EditAsync(EditTaskDTO dto)
         {
+            var task = await getTaskIfNotNullAndCorrectAuthorAsync(dto.TaskId);
+
+            task.Name = dto.Name;
+            task.Description = dto.Description;
+            task.DateBeforeExpiration = dto.DateBeforeExpiration;
+
+            return await updateTaskAsync(task);
+        }
+
+        public async Task<TodoTaskDTO> ToggleClosedAsync(int taskId)
+        {
+            var task = await getTaskIfNotNullAndCorrectAuthorAsync(taskId);
+            
+            task.IsClosed = !task.IsClosed;
+
+            return await updateTaskAsync(task);
+        }
+
+        public async Task<TodoTaskDTO> EditPositionAsync(EditTaskPositionDTO dto)
+        {
+            var editedTask = await getTaskIfNotNullAndCorrectAuthorAsync(dto.NewPositions.First().TaskId);
+
+            var editedTasks = await _context.Tasks
+                .Where(task => task.BoardId == editedTask.BoardId)
+                .ToDictionaryAsync(key => key.Id, value => value);
+
+            foreach (var position in dto.NewPositions)
+            {
+                var task = editedTasks[position.TaskId] ??
+                    throw new InvalidDataException($"You not have task with id {position.TaskId}");
+
+                task.Position = position.NewPosition;
+                _context.Tasks.Update(task);
+            }
+
+            return await updateTaskAsync(editedTask);
+        }
+
+        private async Task<TodoTask> getTaskIfNotNullAndCorrectAuthorAsync(int taskId)
+        {
             var task = await _context.Tasks
-                .FirstOrDefaultAsync(task => task.Id == dto.TaskId);
+                .FirstOrDefaultAsync(task => task.Id == taskId);
 
             if (await notNullAndCorrectAuthorAsync(task) == false)
                 throw new ArgumentException("TaskId incorrect or user is not author");
 
-            task!.Name = dto.Name;
-            task.Description = dto.Description; 
-            task.ClosingDate = dto.ClosingDate;
+            return task!;
+        }
 
-            _context.Tasks.Update(task);
+        private async Task<TodoTaskDTO> updateTaskAsync(TodoTask? task)
+        {
+            _context.Tasks.Update(task!);
             await _context.SaveChangesAsync();
             return _mapper.Map<TodoTaskDTO>(task);
         }
