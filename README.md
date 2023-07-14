@@ -1,5 +1,7 @@
 # Todoist
 
+For creating this project i using asp.net core (mvc) on backend and html, css, typescript on frontend.
+
 ## Technologies
 - ASP.NET Core, ASP.NET MVC
 - EF Core
