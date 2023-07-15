@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Todoist.BusinessLogic.DTOs.User;
 using Todoist.BusinessLogic.DTOs.User.Authentication;
+using Todoist.BusinessLogic.ServiceResults.Authentication;
+using Todoist.BusinessLogic.ServiceResults.Base;
 using Todoist.BusinessLogic.Services.Users;
 using Todoist.BusinessLogic.Services.Users.Authentication;
 using Todoist.Data.Models;
@@ -35,17 +35,13 @@ namespace Todoist.Controllers
             if (ModelState.IsValid == false)
                 return View(dto);
 
-            var result = await _authenticationService.LoginAsync(dto);
+            var result = await _authenticationService.TryLoginAsync(dto);
 
-            IActionResult? actionResult = result switch
-            {
-                { Succeeded: true } => null,
-                { IsNotAllowed: true } => confirmEmailView(dto.Email),
-                _ => loginError("Email or password incorrect", dto),
-            };
-
-            if (actionResult != null)
-                return actionResult;
+            if (result == LoginResult.EmailNotConfirmed)
+                return confirmEmailView(dto.Email);
+            
+            if (result.Successfully == false)
+                return authenticationError(result);
 
             return RedirectHelpers.RedirectBeforeSuccessAuthentication();
         }
@@ -62,13 +58,10 @@ namespace Todoist.Controllers
             if (ModelState.IsValid == false)
                 return View(dto);
 
-            var result = await _authenticationService.RegistrationAsync(dto);
+            var result = await _authenticationService.TryRegistrationAsync(dto);
 
-            if (result.Succeeded == false)
-            {
-                addIdentityErrorsToModelStateErrors(result.Errors);
-                return View(dto);
-            }
+            if (result.Successfully == false)
+                return authenticationError(result);
 
             return confirmEmailView(dto.Email);
         }
@@ -99,34 +92,36 @@ namespace Todoist.Controllers
             if (info == null)
                 return loginError("Error loading external login information.");
 
-            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-            if (email == null)
-                return loginError($"Email claim not received from: {info.LoginProvider}");
+            var result = await _authenticationService.TryExternalLoginAsync(info);
 
-            await _authenticationService.ExternalLoginAsync(info);
+            if (result.Successfully == false)
+                return authenticationError(result);
+
             return RedirectHelpers.RedirectBeforeSuccessAuthentication();
         }
 
         public async Task<IActionResult> ConfirmEmail(ConfirmEmailDTO dto)
         {
-            var result = await _authenticationService.ConfirmEmail(dto);
+            var result = await _authenticationService.TryConfirmEmail(dto);
 
-            if (result.Succeeded == false)
-                return View(dto);
+            if (result.Successfully == false)
+                return authenticationError(result);
 
             return RedirectHelpers.RedirectBeforeSuccessAuthentication();
         }
 
-        private IActionResult loginError(string error, LoginDTO? dto = null)
+        private IActionResult authenticationError(ServiceResult result)
         {
-            ModelState.AddModelError(string.Empty, error);
-            return View("Login", dto ?? ViewData.Model);
+            foreach (var error in result.ErrorCodes)
+                ModelState.AddModelError(string.Empty, error);
+
+            return View();
         }
 
-        private void addIdentityErrorsToModelStateErrors(IEnumerable<IdentityError> errors)
+        private IActionResult loginError(string error)
         {
-            foreach (var error in errors)
-                ModelState.AddModelError("", error.Description);
+            ModelState.AddModelError(string.Empty, error);
+            return View("Login");
         }
 
         private ViewResult confirmEmailView(string email)

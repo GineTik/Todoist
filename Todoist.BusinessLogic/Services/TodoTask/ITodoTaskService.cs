@@ -1,14 +1,15 @@
 ﻿using Todoist.BusinessLogic.DTOs.TodoTask;
+using Todoist.BusinessLogic.ServiceResults.Base;
 
 namespace Todoist.BusinessLogic.Services.TodoTasks
 {
     public interface ITodoTaskService
     {
-        Task<IEnumerable<TodoTaskDTO>> GetAllAsync(int boardId);
-        Task<TodoTaskDTO> CreateAsync(CreateTaskDTO dto);
-        Task RemoveAsync(int taskId);
-        Task<TodoTaskDTO> EditAsync(EditTaskDTO dto);
-        Task<TodoTaskDTO> ToggleClosedAsync(int taskId);
-        Task<TodoTaskDTO> EditPositionAsync(EditTaskPositionDTO dto);
+        Task<ServiceValueResult<IEnumerable<TodoTaskDTO>>> TryGetAllAsync(int boardId);
+        Task<ServiceValueResult<TodoTaskDTO>> TryCreateAsync(CreateTaskDTO dto);
+        Task<ServiceResult> TryRemoveAsync(int taskId);
+        Task<ServiceValueResult<TodoTaskDTO>> TryEditAsync(EditTaskDTO dto);
+        Task<ServiceValueResult<TodoTaskDTO>> TryToggleClosedAsync(int taskId);
+        Task<ServiceValueResult<TodoTaskDTO>> TryEditPositionAsync(EditTaskPositionDTO dto);
     }
 }

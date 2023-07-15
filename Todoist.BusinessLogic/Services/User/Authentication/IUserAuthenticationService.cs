@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Todoist.BusinessLogic.DTOs.User;
 using Todoist.BusinessLogic.DTOs.User.Authentication;
+using Todoist.BusinessLogic.ServiceResults.Base;
 
 namespace Todoist.BusinessLogic.Services.Users.Authentication
 {
@@ -8,12 +9,12 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
     {
         bool UserIsAuthenticated { get; }
 
-        Task<SignInResult> LoginAsync(LoginDTO dto);
-        Task<IdentityResult> RegistrationAsync(RegistrationDTO dto);
-        Task<IdentityResult> ConfirmEmail(ConfirmEmailDTO dto);
-        Task ExternalLoginAsync(ExternalLoginInfo info);
+        Task<ServiceResult> TryLoginAsync(LoginDTO dto);
+        Task<ServiceResult> TryRegistrationAsync(RegistrationDTO dto);
+        Task<ServiceResult> TryConfirmEmail(ConfirmEmailDTO dto);
+        Task<ServiceResult> TryExternalLoginAsync(ExternalLoginInfo info);
         Task LogoutAsync();
         Task<UserDTO> GetAuthenticatedUserAsync();
-        Task<int> GetAuthenticatedUserIdAsync();
+        int GetAuthenticatedUserId();
     }
 }

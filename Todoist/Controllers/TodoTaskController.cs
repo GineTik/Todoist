@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Todoist.BusinessLogic.DTOs.TodoTask;
+using Todoist.BusinessLogic.ServiceResults.Base;
 using Todoist.BusinessLogic.Services.Boards;
 using Todoist.BusinessLogic.Services.TodoTasks;
 
@@ -27,39 +28,47 @@ namespace Todoist.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateTaskDTO dto)
         {
-            var createdTask = await _taskService.CreateAsync(dto);
-            return PartialView("_TaskItemPartial", createdTask);
+            var result = await _taskService.TryCreateAsync(dto);
+
+            if (result.Successfully == false)
+                return StatusCode(500, result);
+
+            return PartialView("_TaskItemPartial", result.Result);
         }
 
         [HttpPost]
         public async Task<IActionResult> Remove(int taskId)
         {
-            await _taskService.RemoveAsync(taskId);
+            await _taskService.TryRemoveAsync(taskId);
             return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> Edit(EditTaskDTO dto)
         {
-            return await editAsync(async () => await _taskService.EditAsync(dto));
+            return await editAsync(async () => await _taskService.TryEditAsync(dto));
         }
 
         [HttpPost]
         public async Task<IActionResult> ToggleClosedValue(int taskId)
         {
-            return await editAsync(async () => await _taskService.ToggleClosedAsync(taskId));
+            return await editAsync(async () => await _taskService.TryToggleClosedAsync(taskId));
         }
 
         [HttpPost]
         public async Task<IActionResult> EditPosition(EditTaskPositionDTO dto)
         {
-            return await editAsync(async () => await _taskService.EditPositionAsync(dto));
+            return await editAsync(async () => await _taskService.TryEditPositionAsync(dto));
         }
 
-        private async Task<IActionResult> editAsync(Func<Task<TodoTaskDTO>> getEditedTask)
+        private async Task<IActionResult> editAsync(Func<Task<ServiceValueResult<TodoTaskDTO>>> getEditedTask)
         {
-            var editedTask = await getEditedTask();
-            return PartialView("_TaskItemPartial", editedTask);
+            var result = await getEditedTask();
+
+            if (result.Successfully == false)
+                return StatusCode(500, result);
+
+            return PartialView("_TaskItemPartial", result.Result);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Todoist.Controllers
         [Authorize]
         public async Task<IActionResult> RemoveAccount()
         {
-            await _userService.RemoveAuthenticatedAccountAsync();
+            await _userService.TryRemoveAuthenticatedAccountAsync();
             return RedirectToAction("Index", "Home");
         }
     }

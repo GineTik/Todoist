@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Todoist.BusinessLogic.DTOs.Board;
+using Todoist.BusinessLogic.ServiceResults.Base;
+using Todoist.BusinessLogic.ServiceResults.Board;
 using Todoist.BusinessLogic.Services.Users.Authentication;
 using Todoist.Data.EF;
 using Todoist.Data.Models;
@@ -23,13 +25,13 @@ namespace Todoist.BusinessLogic.Services.Boards
         public async Task<bool> BoardBelongToAuthenticatedUserAsync(int boardId)
         {
             var board = await _context.Boards.FirstOrDefaultAsync(board => board.Id == boardId);
-            return await boardBelongToAuthenticatedUserAsync(board);
+            return boardBelongToAuthenticatedUser(board);
         }
 
         public async Task<BoardDTO> CreateAsync(CreateBoardDTO dto)
         {
             var newBoard = _mapper.Map<Board>(dto);
-            newBoard.AuthorId = await _authenticationService.GetAuthenticatedUserIdAsync();
+            newBoard.AuthorId = _authenticationService.GetAuthenticatedUserId();
 
             _context.Boards.Add(newBoard);
             await _context.SaveChangesAsync();
@@ -37,23 +39,24 @@ namespace Todoist.BusinessLogic.Services.Boards
             return _mapper.Map<BoardDTO>(newBoard);
         }
 
-        public async Task<BoardDTO> EditNameAsync(EditNameBoardDTO dto)
+        public async Task<ServiceValueResult<BoardDTO>> TryEditNameAsync(EditNameBoardDTO dto)
         {
             var board = await _context.Boards.FirstOrDefaultAsync(board => board.Id == dto.BoardId);
 
-            if (await boardBelongToAuthenticatedUserAsync(board) == false)
-                throw new ArgumentException("Board not exists or user is not author");
+            if (boardBelongToAuthenticatedUser(board) == false)
+                return BoardResult.BoardNotBelongUser;
 
             board!.Name = dto.Name;
             var result = _context.Boards.Update(board);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<BoardDTO>(result.Entity);
+            var boardDTO = _mapper.Map<BoardDTO>(result.Entity);
+            return BoardResult.Success(boardDTO);
         }
 
         public async Task<IEnumerable<BoardDTO>> GetAllOfAuthenticatedUserAsync()
         {
-            var userId = await _authenticationService.GetAuthenticatedUserIdAsync();
+            var userId = _authenticationService.GetAuthenticatedUserId();
             return await _context.Boards
                 .Where(board => board.AuthorId == userId)
                 .Select(board => _mapper.Map<BoardDTO>(board))
@@ -66,24 +69,28 @@ namespace Todoist.BusinessLogic.Services.Boards
                 .Include(board => board.Tasks)
                 .FirstOrDefaultAsync(board => board.Id == boardId);
 
+            if (board != null)
+                board.Tasks = board.Tasks.OrderBy(board => board.Position);
+
             return _mapper.Map<BoardWithTasksDTO>(board);
         }
 
-        public async Task RemoveAsync(int boardId)
+        public async Task<ServiceResult> TryRemoveAsync(int boardId)
         {
             var boardToRemove = await _context.Boards
                 .FirstOrDefaultAsync(board => board.Id == boardId);
 
-            if (await boardBelongToAuthenticatedUserAsync(boardToRemove) == false)
-                throw new ArgumentException("Board not exists or user is not author");
+            if (boardBelongToAuthenticatedUser(boardToRemove) == false)
+                return BoardResult.BoardNotBelongUser;
 
             _context.Boards.Remove(boardToRemove!);
             await _context.SaveChangesAsync();
+            return ServiceResult.Success;
         }
 
-        private async Task<bool> boardBelongToAuthenticatedUserAsync(Board? board)
+        private bool boardBelongToAuthenticatedUser(Board? board)
         {
-            var userId = await _authenticationService.GetAuthenticatedUserIdAsync();
+            var userId = _authenticationService.GetAuthenticatedUserId();
             return board?.AuthorId == userId;
         }
     }

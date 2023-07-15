@@ -31,14 +31,14 @@ namespace Todoist.Controllers
         [HttpPost]
         public async Task<IActionResult> Remove(int boardId)
         {
-            await _boardService.RemoveAsync(boardId);
+            await _boardService.TryRemoveAsync(boardId);
             return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> EditName(EditNameBoardDTO dto)
         {
-            var editedBoard = await _boardService.EditNameAsync(dto);
+            var editedBoard = await _boardService.TryEditNameAsync(dto);
             return PartialView("_BoardItemPartial", editedBoard);
         }
     }

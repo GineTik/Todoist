@@ -5,6 +5,8 @@ using System.Security.Authentication;
 using System.Security.Claims;
 using Todoist.BusinessLogic.DTOs.User;
 using Todoist.BusinessLogic.DTOs.User.Authentication;
+using Todoist.BusinessLogic.ServiceResults.Authentication;
+using Todoist.BusinessLogic.ServiceResults.Base;
 using Todoist.BusinessLogic.Services.Email;
 using Todoist.Data.Models;
 
@@ -36,11 +38,11 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
 
         public bool UserIsAuthenticated => _httpContext.User.Identity?.IsAuthenticated ?? false;
 
-        public async Task<SignInResult> LoginAsync(LoginDTO dto)
+        public async Task<ServiceResult> TryLoginAsync(LoginDTO dto)
         {
             var user = await _userManager.FindByNameAsync(dto.Email);
             if (user == null)
-                return SignInResult.Failed;
+                return LoginResult.EmailOrPasswordIncorrect;
 
             var result = await _signInManager.PasswordSignInAsync(
                 user,
@@ -52,13 +54,18 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
             if (result.Succeeded == true && user.EmailConfirmed == false)
             {
                 await sendConfirmationEmail(user);
-                return SignInResult.NotAllowed;
+                return LoginResult.EmailNotConfirmed;
             }
 
-            return result;
+            if (result.ToString() == "Failed")
+                return LoginResult.EmailOrPasswordIncorrect;
+            else if (result.Succeeded == false)
+                return LoginResult.SignInResult(result);
+
+            return LoginResult.Success;
         }
 
-        public async Task<IdentityResult> RegistrationAsync(RegistrationDTO dto)
+        public async Task<ServiceResult> TryRegistrationAsync(RegistrationDTO dto)
         {
             var user = new User
             {
@@ -70,7 +77,7 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
             if (result.Succeeded == true)
                 await sendConfirmationEmail(user);
 
-            return result;
+            return AuthenticationResult.IdentityResult(result);
         }
 
         public async Task LogoutAsync()
@@ -78,16 +85,17 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
             await _signInManager.SignOutAsync();
         }
 
-        public async Task ExternalLoginAsync(ExternalLoginInfo info)
+        public async Task<ServiceResult> TryExternalLoginAsync(ExternalLoginInfo info)
         {
             var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider,
                 info.ProviderKey, isPersistent: REMEMBER_ME, bypassTwoFactor: true);
 
             if (signInResult.Succeeded == true)
-                return;
+                return ExternalLoginResult.Success;
 
-            var email = info.Principal.FindFirstValue(ClaimTypes.Email) ??
-                throw new InvalidOperationException($"Email claim not received from: {info.LoginProvider}");
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (email == null)
+                return ExternalLoginResult.EmailNotFound;
 
             var user =
                 await _userManager.FindByEmailAsync(email) ??
@@ -95,6 +103,7 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
 
             await _userManager.AddLoginAsync(user, info);
             await _signInManager.SignInAsync(user, isPersistent: REMEMBER_ME);
+            return ExternalLoginResult.Success;
         }
 
         public async Task<UserDTO> GetAuthenticatedUserAsync()
@@ -106,13 +115,16 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
             return _mapper.Map<UserDTO>(user);
         }
 
-        public async Task<int> GetAuthenticatedUserIdAsync()
+        public int GetAuthenticatedUserId()
         {
-            var user = await GetAuthenticatedUserAsync();
-            return user.Id;
+            if (UserIsAuthenticated == false)
+                throw new AuthenticationException("User not authentication");
+
+            var id = _userManager.GetUserId(_httpContext.User);
+            return int.Parse(id!);
         }
 
-        public async Task<IdentityResult> ConfirmEmail(ConfirmEmailDTO dto)
+        public async Task<ServiceResult> TryConfirmEmail(ConfirmEmailDTO dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email) ??
                 throw new ArgumentException("User not found");
@@ -122,7 +134,7 @@ namespace Todoist.BusinessLogic.Services.Users.Authentication
             if (result.Succeeded == true)
                 await _signInManager.SignInAsync(user, REMEMBER_ME);
 
-            return result;
+            return AuthenticationResult.IdentityResult(result);
         }
 
         private async Task<User> createUserWithoutPassword(string email)
