@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Todoist.BusinessLogic.DTOs.Board;
+using Todoist.BusinessLogic.DTOs.Page;
 using Todoist.BusinessLogic.Services.Boards;
 
 namespace Todoist.Controllers
@@ -15,9 +16,9 @@ namespace Todoist.Controllers
             _boardService = boardService;
         }
 
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> Page(PageInfo info)
         {
-            var boards = await _boardService.GetAllOfAuthenticatedUserAsync();
+            var boards = await _boardService.GetPageOfAuthenticatedUserAsync(info);
             return View(boards);
         }
 

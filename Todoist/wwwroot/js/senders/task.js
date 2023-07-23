@@ -43,6 +43,7 @@ export default function init(params) {
     $tasks_content.sortable({
         stop: function (event, ui) {
             let allPositions = $(this).sortable("toArray", { attribute: "task-id" }).map(function (value, index) {
+                //let offset = (params.currentPage - 1) * params.pageSize;
                 return { taskId: value, newPosition: index };
             });
             send(params.editPositionLink, { newPositions: allPositions }, "Edit position error");

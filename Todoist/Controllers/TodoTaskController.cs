@@ -21,7 +21,10 @@ namespace Todoist.Controllers
 
         public async Task<IActionResult> All(int boardId)
         {
-            var boardWithTasks = await _boardService.GetAsync(boardId);
+            var boardWithTasks = await _boardService.GetWithTasksAsync(boardId);
+            if (boardWithTasks == null)
+                return NotFound();
+
             return View(boardWithTasks);
         }
 
@@ -39,7 +42,11 @@ namespace Todoist.Controllers
         [HttpPost]
         public async Task<IActionResult> Remove(int taskId)
         {
-            await _taskService.TryRemoveAsync(taskId);
+            var result = await _taskService.TryRemoveAsync(taskId);
+
+            if (result.Successfully == false)
+                return StatusCode(500, result);
+
             return Ok();
         }
 

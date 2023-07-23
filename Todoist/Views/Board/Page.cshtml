@@ -1,14 +1,15 @@
 ﻿@using System.Text.Json;
 @using Todoist.BusinessLogic.DTOs.Board;
+@using Todoist.BusinessLogic.DTOs.Page;
 @using Todoist.Controllers;
 @using Todoist.Helpers.Extensions;
 
-@model IEnumerable<BoardDTO>
+@model PageDTO<BoardDTO>
 
 <div class="boards d-flex justify-content-center flex-column mt-5 mx-auto" style="width: 400px;">
     <h3 class="fw-bold">Boards</h3>
     <div class="boards__content">
-        @foreach (var board in Model)
+        @foreach (var board in Model.Content)
         {
             <partial name="_BoardItemPartial" model="board"></partial>
         }
@@ -18,6 +19,34 @@
         <div class="btn btn-primary w-100 create-btn">Create new board</div>
     </div>
     <div class="alert alert-danger error-field" role="alert"></div>
+
+    <nav class="bg-light p-2 d-flex" aria-label="navigation">
+        <ul class="pagination w-100 m-0">
+            @if (Model.PageMetadata.Current - 1 > 0)
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-action="Page"
+                       asp-route-page="@(Model.PageMetadata.Current - 1)"
+                       asp-route-size="@Model.PageMetadata.Size">
+                        Previous
+                    </a>
+                </li>
+            }
+            <li class="page-item"><span class="page-link">total page: @Model.PageMetadata.TotalPages</span></li>
+            @if (Model.PageMetadata.Current + 1 <= Model.PageMetadata.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-action="Page"
+                       asp-route-page="@(Model.PageMetadata.Current + 1)"
+                       asp-route-size="@Model.PageMetadata.Size">
+                        Next
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
 </div>
 
 @section Scripts {

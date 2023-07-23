@@ -6,7 +6,11 @@ namespace Todoist.Configuration.Services
     {
         public static IServiceCollection AddAutoMapperProfiles(this IServiceCollection services)
         {
-            return services.AddAutoMapper(typeof(BoardProfile), typeof(TodoTaskProfile));
+            return services.AddAutoMapper(
+                typeof(BoardProfile), 
+                typeof(TodoTaskProfile), 
+                typeof(PageProfile)
+            );
         }
     }
 }

@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using Todoist.BusinessLogic.DTOs.Board;
+using Todoist.BusinessLogic.DTOs.Page;
 using Todoist.BusinessLogic.ServiceResults.Base;
 using Todoist.BusinessLogic.ServiceResults.Board;
 using Todoist.BusinessLogic.Services.Users.Authentication;
 using Todoist.Data.EF;
+using Todoist.Data.EF.Extensions;
 using Todoist.Data.Models;
 
 namespace Todoist.BusinessLogic.Services.Boards
@@ -54,23 +57,21 @@ namespace Todoist.BusinessLogic.Services.Boards
             return BoardResult.Success(boardDTO);
         }
 
-        public async Task<IEnumerable<BoardDTO>> GetAllOfAuthenticatedUserAsync()
+        public async Task<PageDTO<BoardDTO>> GetPageOfAuthenticatedUserAsync(PageInfo info)
         {
             var userId = _authenticationService.GetAuthenticatedUserId();
-            return await _context.Boards
+            var page = await _context.Boards
                 .Where(board => board.AuthorId == userId)
-                .Select(board => _mapper.Map<BoardDTO>(board))
-                .ToListAsync();
+                .PaginateAsync(info.Page, info.Size);
+
+            return _mapper.Map<PageDTO<BoardDTO>>(page);
         }
 
-        public async Task<BoardWithTasksDTO?> GetAsync(int boardId)
+        public async Task<BoardWithTasksDTO?> GetWithTasksAsync(int boardId)
         {
             var board = await _context.Boards
-                .Include(board => board.Tasks)
+                .Include(board => board.Tasks.OrderBy(task => task.Position))
                 .FirstOrDefaultAsync(board => board.Id == boardId);
-
-            if (board != null)
-                board.Tasks = board.Tasks.OrderBy(board => board.Position);
 
             return _mapper.Map<BoardWithTasksDTO>(board);
         }

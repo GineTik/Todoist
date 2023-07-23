@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Todoist.BusinessLogic.DTOs.Board;
+using Todoist.BusinessLogic.DTOs.Page;
 using Todoist.BusinessLogic.DTOs.TodoTask;
 using Todoist.BusinessLogic.ServiceResults.Base;
 using Todoist.BusinessLogic.ServiceResults.TodoTasks;
 using Todoist.BusinessLogic.Services.Boards;
 using Todoist.Data.EF;
+using Todoist.Data.EF.Extensions;
 using Todoist.Data.Models;
 
 namespace Todoist.BusinessLogic.Services.TodoTasks
@@ -25,6 +28,7 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
         public async Task<ServiceValueResult<TodoTaskDTO>> TryCreateAsync(CreateTaskDTO dto)
         {
             var task = _mapper.Map<TodoTask>(dto);
+            task.Position = int.MaxValue;
 
             if (await notNullAndCorrectAuthorAsync(task) == false)
                 return TodoTaskResult.TaskNotBelongUser;
@@ -64,18 +68,6 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
 
         public async Task<ServiceValueResult<TodoTaskDTO>> TryEditAsync(EditTaskDTO dto)
         {
-            //var task = await _context.Tasks
-            //    .FirstOrDefaultAsync(task => task.Id == dto.TaskId);
-
-            //if (await notNullAndCorrectAuthorAsync(task) == false)
-            //    return TodoTaskResult.TaskNotBelongUser;
-
-            //task!.Name = dto.Name;
-            //task.Description = dto.Description;
-            //task.DateBeforeExpiration = dto.DateBeforeExpiration;
-
-            //return await updateTaskAsync(task);
-
             return await editAsync(dto.TaskId, async task =>
             {
                 task.Name = dto.Name;
@@ -87,16 +79,6 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
 
         public async Task<ServiceValueResult<TodoTaskDTO>> TryToggleClosedAsync(int taskId)
         {
-            //var task = await _context.Tasks
-            //    .FirstOrDefaultAsync(task => task.Id == taskId);
-
-            //if (await notNullAndCorrectAuthorAsync(task) == false)
-            //    return TodoTaskResult.TaskNotBelongUser;
-
-            //task!.IsClosed = !task.IsClosed;
-
-            //return await updateTaskAsync(task);
-
             return await editAsync(taskId, async task =>
             {
                 task.IsClosed = !task.IsClosed;
@@ -106,12 +88,6 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
 
         public async Task<ServiceValueResult<TodoTaskDTO>> TryEditPositionAsync(EditTaskPositionDTO dto)
         {
-            //var task = await _context.Tasks
-            //    .FirstOrDefaultAsync(task => task.Id == dto.NewPositions.First().TaskId);
-
-            //if (await notNullAndCorrectAuthorAsync(task) == false)
-            //    return TodoTaskResult.TaskNotBelongUser;
-
             return await editAsync(dto.NewPositions.First().TaskId, async _ =>
             {
                 var tasksToEdit = await _context.Tasks
@@ -127,21 +103,6 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
                     _context.Tasks.Update(taskToEdit);
                 }
             });
-
-            //var tasksToEdit = await _context.Tasks
-            //    .Where(task => task.BoardId == task.BoardId)
-            //    .ToDictionaryAsync(key => key.Id, value => value);
-
-            //foreach (var position in dto.NewPositions)
-            //{
-            //    var taskToEdit = tasksToEdit[position.TaskId] ??
-            //        throw new InvalidDataException($"You not have task with id {position.TaskId}");
-
-            //    taskToEdit.Position = position.NewPosition;
-            //    _context.Tasks.Update(taskToEdit);
-            //}
-
-            //return await updateTaskAsync(task);
         }
 
         private async Task<ServiceValueResult<TodoTaskDTO>> editAsync(int taskId, Func<TodoTask, Task> editing)
@@ -161,24 +122,7 @@ namespace Todoist.BusinessLogic.Services.TodoTasks
 
             var taskDTO = _mapper.Map<TodoTaskDTO>(task);
             return TodoTaskResult.Success(taskDTO);
-
-            //return await updateTaskAsync(task);
         }
-
-        //private async Task<ServiceValueResult<TodoTaskDTO>> editAsync(int taskId, Action<TodoTask> editing)
-        //{
-        //    ArgumentNullException.ThrowIfNull(editing);
-
-        //    var task = await _context.Tasks
-        //       .FirstOrDefaultAsync(task => task.Id == taskId);
-
-        //    if (await notNullAndCorrectAuthorAsync(task) == false)
-        //        return TodoTaskResult.TaskNotBelongUser;
-
-        //    editing.Invoke(task!);
-
-        //    return await updateTaskAsync(task);
-        //}
 
         private async Task<ServiceValueResult<TodoTaskDTO>> updateTaskAsync(TodoTask? task)
         {

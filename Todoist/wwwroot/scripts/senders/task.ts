@@ -7,7 +7,7 @@ export default function init(params:
     editLink: string,
     toggleClosedValueLink: string,
     editPositionLink: string,
-    boardId: number
+    boardId: number,
 }) {
 
     const $tasks_content = $(".tasks__content");
@@ -58,7 +58,7 @@ export default function init(params:
     $tasks_content.sortable({
         stop: function (event, ui) {
             let allPositions = $(this).sortable("toArray", { attribute: "task-id" }).map(function (value, index) {
-                return { taskId: value, newPosition: index };
+                return { taskId: value, newPosition: index};
             });
 
             send(

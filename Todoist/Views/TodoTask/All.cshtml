@@ -1,4 +1,5 @@
 ﻿@using Todoist.BusinessLogic.DTOs.Board;
+@using Todoist.BusinessLogic.DTOs.Page;
 @using Todoist.BusinessLogic.DTOs.TodoTask;
 @using Todoist.Helpers.Extensions;
 @using Todoist.Controllers;
@@ -6,7 +7,7 @@
 
 @section Header 
 {
-    <a class="ms-3 link-primary" href="@Url.ActionLink("All", "Board")">to all boards</a>
+    <a class="ms-3 link-primary" asp-controller="Board" asp-action="All">to all boards</a>
     <span class="ms-3">Board name: @Model.Name</span>
 }
 
@@ -18,7 +19,7 @@
             <partial name="_TaskItemPartial" model="task"></partial>
         }
     </div>
-    <div class="bg-light p-2 d-flex">
+    <div class="bg-light p-2 d-flex mb-3">
         <div class="flex-row">
             <input class="form-control me-1" name="name" type="text" placeholder="task name" />
             <input class="form-control" name="description" type="datetime" placeholder="description" />
@@ -50,7 +51,7 @@
             editLink: "@editActionLink",
             toggleClosedValueLink: "@toggleClosedValueActionLink",
             editPositionLink: "@editPositionLink",
-            boardId: @Model.Id
+            boardId: @Model.Id,
         });
     </script>
 }
